@@ -5,6 +5,7 @@ const cheerio = require("cheerio");
 const FAQS = require("../models/FAQ");
 
 
+
 const langs = ["hi","bn","gu","te","mr"];
 
 // Function to translate text - using googletrans   -> npmjs package
@@ -85,7 +86,7 @@ router.get('/', async (req, res) => {
     try {
         // console.log(req.query.lang);
         if(req.query.lang && langs.includes(req.query.lang)){
-            const data =  await FAQS.find().select(`question_translations.${req.query.lang}`);
+            const data =  await FAQS.find().select(`question_translations.${req.query.lang} answer_translations.${req.query.lang}`);
             res.json({
                 status:true,
                 data:data
@@ -107,8 +108,41 @@ router.get('/', async (req, res) => {
     }
 })
 
+// api to get faq by id
+router.get('/get-by-id/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        // If question or answer is empty 
+        if (!id) {
+            return res.json({
+                status: false,
+                msg: "empty fields"
+            })
+        }
+        else {
+            const faq = await FAQS.findById(id);
+            if(!faq){
+                return res.status(404).json({
+                    status:false,
+                    msg:"FAQ not found"
+                })
+            }
+            res.json({
+                status: true,
+                data:faq
+            });
+        }
+    } catch (error) {
+        res.status(404).json({
+            status: false,
+            msg: error
+        })
+    }
+})
+
+
 // api to update faq
-router.post('/update/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
     try {
         const { question, answer} = req.body;
         const {id} = req.params;

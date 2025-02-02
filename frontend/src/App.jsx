@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar'
 import FAQS from './pages/FAQS'
 import AddFAQ from './pages/AddFAQ'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import UpdateFAQ from './pages/UpdateFAQ'
 
 
 function App() {
@@ -16,9 +17,8 @@ function App() {
       {/* <FAQS/> */}
       <Routes>
         <Route path='/' element={<FAQS/>}/>
-      </Routes>
-      <Routes>
         <Route path='/add' element={<AddFAQ/>}/>
+        <Route path='/update/:id' element={<UpdateFAQ/>}/>
       </Routes>
       </Router>
     </>
