@@ -3,10 +3,21 @@ const router = express.Router();
 const tr = require("googletrans").default;
 const cheerio = require("cheerio");
 const FAQS = require("../models/FAQ");
-
+const redis = require("redis");
 
 
 const langs = ["hi","bn","gu","te","mr"];
+
+
+
+//redis for much-faster-response
+const client = redis.createClient({
+    url: "redis://127.0.0.1:6379",
+  });
+  client.connect();
+  client.on("connect", () => console.log("Connected to Redis"));
+  client.on("error", (err) => console.error("Redis error:", err));
+
 
 // Function to translate text - using googletrans   -> npmjs package
 const translateText = async (text, targetLang) => {
@@ -86,15 +97,40 @@ router.get('/', async (req, res) => {
     try {
         // console.log(req.query.lang);
         if(req.query.lang && langs.includes(req.query.lang)){
+
+            const cacheKey = `faqs_${req.query.lang}`;
+           
+             // Check Redis Cache First
+            const cachedData = await client.get(cacheKey);
+            // console.log(cachedData);
+            if (cachedData) {
+                return res.json({ status: true, data: JSON.parse(cachedData), cached: true });
+            }
+            
+            // If Not Cached, Fetch from Database
             const data =  await FAQS.find().select(`question_translations.${req.query.lang} answer_translations.${req.query.lang}`);
-            res.json({
+
+            // Store in Redis for 1 hour (3600 seconds)
+            await client.setEx(cacheKey, 3600, JSON.stringify(data));
+
+            return  res.json({
                 status:true,
-                data:data
+                data:data,
+                cached: false
             })
         }
         else{
+            const cacheKey = 'faqs';
+
+            const cachedData = await client.get(cacheKey);
+            // console.log(cachedData);
+            if (cachedData) {
+                return res.json({ status: true, data: JSON.parse(cachedData), cached: true });
+            }
             const data = await FAQS.find().select('-question_translations -answer_translations')
             // console.log(data);
+
+            await client.setEx(cacheKey, 3600, JSON.stringify(data));
             return res.json({
                 status:true,
                 data:data
@@ -174,6 +210,8 @@ router.put('/update/:id', async (req, res) => {
             }));
             // console.log(data);
             const response = await FAQS.findByIdAndUpdate(id,data);
+            //remove all keys
+            await client.flushall();
             res.json({
                 status: true,
                 msg:"FAQ updated successfully"
@@ -208,6 +246,7 @@ router.delete('/delete/:id', async (req, res) => {
                 })
             }
             const response = await FAQS.findByIdAndDelete(id);
+            await client.flushall();
             res.json({
                 status: true,
                 msg:"FAQ deleted successfully"

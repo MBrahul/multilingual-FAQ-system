@@ -6,8 +6,8 @@ import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { confirmAlert } from 'react-confirm-alert'; // Import
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import { confirmAlert } from 'react-confirm-alert'; 
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
 import axios from 'axios';
 
 
@@ -57,7 +57,7 @@ const FAQ = (props) => {
           navigate(`/update/${id}`);
         }}><div className='flex justify-center items-center gap-2'><GrEdit /> Edit</div></button>
         <button className='text-xl mx-2 border px-4 py-1 bg-white rounded border-red-500 cursor-pointer hover:text-black hover:bg-red-400 transitions-all duration-300'><div className='flex justify-center items-center gap-2' onClick={handleDelete}><MdDeleteForever /> Delete</div></button>
-        {/* <button className='text-2xl mx-3'><MdDeleteForever /></button> */}
+       
       </dd>
     </div>
   )

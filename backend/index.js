@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const connectToDb = require('./db');
+
+
 const app = express();
 const PORT = 5500;
 app.use(express.json());
@@ -8,6 +10,8 @@ app.use(express.json());
 app.use(cors());
 
 connectToDb();
+
+
 
 
 app.get("/",(req,res)=>{
