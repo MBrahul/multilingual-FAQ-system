@@ -79,6 +79,7 @@ router.post('/add', async (req, res) => {
             }));
             // console.log(data);
             const response = await FAQS.create(data);
+            await client.flushAll();
             res.json({
                 status: true,
                 msg:"FAQ added successfully"
@@ -211,7 +212,7 @@ router.put('/update/:id', async (req, res) => {
             // console.log(data);
             const response = await FAQS.findByIdAndUpdate(id,data);
             //remove all keys
-            await client.flushall();
+            await client.flushAll();
             res.json({
                 status: true,
                 msg:"FAQ updated successfully"
@@ -246,7 +247,7 @@ router.delete('/delete/:id', async (req, res) => {
                 })
             }
             const response = await FAQS.findByIdAndDelete(id);
-            await client.flushall();
+            await client.flushAll();
             res.json({
                 status: true,
                 msg:"FAQ deleted successfully"
